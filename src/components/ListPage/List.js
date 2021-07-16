@@ -51,6 +51,7 @@ const useStyles = makeStyles({
   },
   content_img:{
     height:"100%",
+    minHeight:'300px'
   }
 
 });
@@ -72,8 +73,8 @@ const List = ({ data }) => {
           component="img"
           alt="Image"
           height="150"
-          image={data.poster_path ? (`http://image.tmdb.org/t/p/w500/${data.poster_path}`) : (`http://image.tmdb.org/t/p/w500/${data.backdrop_path}`)}
-          title="Contemplative Reptile"
+          image={data.poster_path ? (`http://image.tmdb.org/t/p/w300/${data.poster_path}`) : (`http://image.tmdb.org/t/p/w300/${data.backdrop_path}`)}
+          title={data.original_title}
           className={classes.content_img}
         />
         <CardContent style={{ padding: '10px' }} className={classes.movie_content} >

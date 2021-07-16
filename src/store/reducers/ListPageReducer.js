@@ -1,4 +1,4 @@
-import { API_SUCCESS, ON_PAGE_CHANGE, DETAIL_PAGE_CONTENT, INCREMENT_PAGE, DECREMENT_PAGE, SEARCH_DATA, SEARCH_DATA_FLAG, SEARCH_KEYWORD } from '../actions/ListPageActionTypes'
+import { API_SUCCESS,NO_DATA_FROM_API, ON_PAGE_CHANGE, DETAIL_PAGE_CONTENT, INCREMENT_PAGE, DECREMENT_PAGE, SEARCH_DATA, SEARCH_DATA_FLAG, SEARCH_KEYWORD } from '../actions/ListPageActionTypes'
 const initial_state = {
     fullMovieApiData: {},
     total_pages: 1,
@@ -7,7 +7,8 @@ const initial_state = {
     currentPage: 1,
     searchMovieData: [],
     searchFlag: false,
-    searchValue:''
+    searchValue:'',
+    emptyData:false
 }
 
 const ListPageReducer = (state = initial_state, { type, payload }) => {
@@ -19,7 +20,8 @@ const ListPageReducer = (state = initial_state, { type, payload }) => {
                 fullMovieApiData: payload,
                 upcomingMovieListData: payload.results,
                 total_pages: payload.total_pages,
-                currentPage: payload.page
+                currentPage: payload.page,
+                emptyData:false
             }
 
         case ON_PAGE_CHANGE:
@@ -48,8 +50,9 @@ const ListPageReducer = (state = initial_state, { type, payload }) => {
                 ...state,
                 searchMovieData: payload.results,
                 total_pages: payload.total_pages,
-                currentPage: 1,
+                currentPage: payload.page,
                 searchFlag: true,
+                emptyData:false
             }
         case SEARCH_DATA_FLAG:
             return {
@@ -57,12 +60,19 @@ const ListPageReducer = (state = initial_state, { type, payload }) => {
                 searchFlag: false,
                 total_pages: state.fullMovieApiData.total_pages,
                 currentPage: 1,
+                searchValue:''
             }
         case SEARCH_KEYWORD:
             return {
                 ...state,
                 searchValue: payload,
    
+            }
+        case NO_DATA_FROM_API:
+            return {
+                ...state,
+                emptyData: true,
+    
             }
 
         default: return state

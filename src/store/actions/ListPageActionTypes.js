@@ -6,6 +6,7 @@
  export const SEARCH_DATA = "SEARCH_DATA"
  export const SEARCH_DATA_FLAG = "SEARCH_DATA_FLAG"
  export const SEARCH_KEYWORD = "SEARCH_KEYWORD"
+ export const NO_DATA_FROM_API = "NO_DATA_FROM_API"
 
  // middleware usage
 // export const setIncrementCount = (payload) => async (dispatch) =>{
@@ -42,3 +43,8 @@ export const setSearchFlag = (payload) =>{
 export const setSearchValue = (payload) =>{
     return ({type:SEARCH_KEYWORD, payload})
 }
+
+export const setEmptyData= (payload) =>{
+    return ({type:NO_DATA_FROM_API, payload})
+}
+

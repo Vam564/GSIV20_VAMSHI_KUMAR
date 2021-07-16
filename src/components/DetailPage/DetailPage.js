@@ -1,20 +1,27 @@
-import React, { useEffect } from 'react'
-import { useSelector } from 'react-redux'
+import React, { useState, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
-import { makeStyles } from '@material-ui/core/styles';
-import Card from '@material-ui/core/Card';
-import CardMedia from '@material-ui/core/CardMedia';
-import Typography from '@material-ui/core/Typography';
+import { Grid, Card, CardMedia, Typography, makeStyles, Fab } from '@material-ui/core';
+import axios from 'axios'
 import Header from '../Header/Header'
-import Grid from '@material-ui/core/Grid';
-
+import { setMovieTrailerData } from '../../store/actions/DetailPageActionTypes'
+import Media from '../Media/Media'
+import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 const useStyles = makeStyles((theme) => ({
     root: {
         display: 'flex',
-        justifyContent:"center",
-        margin: '10px 0',
+        justifyContent: "center",
         border: 'none',
-        boxShadow: 'none'
+        boxShadow: 'none',
+        backgroundPosition: 'right -200px top',
+        backgroundSize: 'cover',
+        backgroundRepeat: 'no-repeat',
+        color: '#ffffff',
+        borderRadius: 0,
+    },
+    custom_bg: {
+        backgroundImage: 'linear-gradient(to right, rgba(10.98%, 8.63%, 11.37%, 1.00) 150px, rgba(10.98%, 8.63%, 11.37%, 0.84) 100%)',
+        paddingTop: 10,
     },
     details: {
         display: 'flex',
@@ -25,11 +32,11 @@ const useStyles = makeStyles((theme) => ({
     cover: {
         width: '70%',
         padding: 10,
-        height:'90%',
+        height: '90%',
         [theme.breakpoints.up('md')]: {
-            width:'100%',
-            margin:'0 auto',
-            objectFit:'contain',
+            width: '100%',
+            margin: '0 auto',
+            objectFit: 'contain',
         },
     },
     controls: {
@@ -52,52 +59,95 @@ const useStyles = makeStyles((theme) => ({
             display: 'block',
         },
     },
-    movie_content:{
-        padding:15,
-        margin:'10px',
-      
+    movie_content: {
+        padding: 15,
+        margin: '10px',
+
         [theme.breakpoints.up('md')]: {
-           paddingTop:'30px 0',
-           margin:'10px 0'
-            
+            padding: '30px 0 0 50px',
+            margin: '10px 0'
+
         },
     },
-    movie_overview:{
-        fontSize:'14px',
+    movie_overview_title: {
+        color: '#ffffff'
     },
-    movie_cast:{
-        fontSize:'14px',
+    movie_overview: {
+        fontSize: '14px',
+        color: '#ffffff'
     },
-    movie_title:{
-        fontSize:'16px',
-        fontWeight:'bold',
+    movie_cast: {
+        fontSize: '14px',
     },
-    movie_details:{
-        fontSize:'14px',
+    movie_title: {
+        fontSize: '16px',
+        fontWeight: 'bold',
     },
-
+    movie_details: {
+        fontSize: '14px',
+    },
+    btns: {
+        margin: '10px 0',
+        padding: '10px',
+    },
+    trailer_video: {
+        maxWidth: '960px',
+        margin: '0 auto',
+        padding: '0px 1.0875rem 1.45rem',
+    }
 }));
 
 
 const DetailPage = () => {
 
     const content = useSelector((state) => state.ListPageReducer)
+    // const content_detail = useSelector((state) => state.DetailPageReducer)
     const { detailPageData } = content
     const history = useHistory();
-
+    const dispatch = useDispatch()
+    const [watchTrailer, setWatchTrailer] = useState(false)
+    const [open, setOpen] = React.useState(false);
     const classes = useStyles();
 
     useEffect(() => {
-        if(Object.entries(detailPageData).length === 0){
+        if (Object.entries(detailPageData).length === 0) {
             history.push('/')
         }
     })
 
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    const handleWatchTrailer = () => {
+
+        console.log("hello")
+        let url = `https://api.themoviedb.org/3/movie/${detailPageData.id}/videos?api_key=88428b2a9e9d271ea540df7c3fa4dac3`
+
+        axios.get(url)
+            .then(function (response) {
+                // handle success
+                dispatch(setMovieTrailerData(response.data))
+                setWatchTrailer(true)
+                handleClickOpen()
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            })
+    }
+
+
+
     return (
         <div>
             <Header></Header>
-            <Card className={classes.root}>
-                <div>
+            <Card className={classes.root} style={{ backgroundImage: `url(http://image.tmdb.org/t/p/w500${detailPageData.poster_path})`, }}>
+                <div className={classes.custom_bg}>
                     <Grid container >
                         <Grid container >
                             <Grid item xs={12} md={2} className={classes.image_content}>
@@ -111,18 +161,21 @@ const DetailPage = () => {
                                 />
                             </Grid>
                             <Grid item xs={12} md={9} className={classes.movie_content}>
-                                <Typography component="h5" variant="h5" className={classes.movie_title}>
-                                    {detailPageData.original_title} <span className={classes.rating}>({detailPageData.vote_average})</span>
-                                </Typography>
-                                <Typography component="p" variant="p" className={classes.movie_details}>
+                                <h2> {detailPageData.original_title} <span className={classes.rating}>({detailPageData.vote_average})</span></h2>
+                                <Typography component="p" variant="body2" className={classes.movie_details}>
                                     Year | Length | Director
                                 </Typography>
-                                <Typography component="p" variant="p" className={classes.movie_cast}>
+                                <Typography component="p" variant="body2" className={classes.movie_cast}>
                                     Cast : Actor 1, Actor 2 ...
                                 </Typography>
-                                <Typography variant="subtitle1" color="textSecondary" className={classes.movie_overview}>
+                                <h5 className={classes.movie_overview_title}>Overview : </h5>
+                                <p className={classes.movie_overview}>
                                     {detailPageData.overview}
-                                </Typography>
+                                </p>
+                                <Fab variant="extended" size="small" className={classes.btns} onClick={handleWatchTrailer} >
+                                    <PlayArrowIcon className={classes.extendedIcon} />
+                                    Play Trailer
+                                </Fab>
                             </Grid>
 
                         </Grid>
@@ -130,6 +183,9 @@ const DetailPage = () => {
                 </div>
 
             </Card>
+            <div className={classes.trailer_video}>
+                {watchTrailer && <Media handleClickOpen={handleClickOpen} handleClose={handleClose} open={open} setOpen={setOpen} />}
+            </div>
         </div>
     );
 }
